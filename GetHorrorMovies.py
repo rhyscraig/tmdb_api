@@ -2,6 +2,7 @@ from datetime import datetime
 from tmdbv3api import TMDb
 import csv
 import time
+import os
 from tmdbv3api import Movie
 from tmdbv3api import Genre
 from tmdbv3api import Discover
@@ -14,12 +15,15 @@ genre = Genre()
 discover = Discover()
 date = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-# Prepare filename
-filename = f'/root/projects/results/horror-movies-{date}.csv'
+output_dir = r'C:\projects\tmdb_api\results'
+os.makedirs(output_dir, exist_ok=True)
+# Generate dynamic filename with date and time
+current_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+output_filename = os.path.join(output_dir, f'movies_{current_datetime}.xlsx')
     
 i = 1
 print("Starting value is {i}")
-horrormovies = []
+movies_collection = []
 
 # 27 = HORROR
 # 53 = THRILLLER
@@ -30,34 +34,36 @@ while True:
         
         print("Parsing movies page", int(i))
         
-        movie = discover.discover_movies({
-            'primary_release_date.gte': '2022-01-01',
-            'primary_release_date.lte': '2022-12-31',
+        movies_set = discover.discover_movies({
+            'primary_release_date.gte': '2023-01-01',
+            'primary_release_date.lte': '2023-12-31',
             'sort_by': 'popularity.desc',
             'with_genres': 27,
             'page': i
         })
-        horrormovies = horrormovies + movie
+        # horrormovies = horrormovies + movie
+        movies_collection.extend(movies_set)
         i+=1
         
         # Break if all the movies have been been found (1639)
-        if (len(horrormovies) == len(horrormovies + movie)):
+        if (len(movies_collection) == len(movies_collection) + len(movies_set)):
             print("Finished fetching horror movies")
             break
         
-        print("Found horror movies - ", len(horrormovies))
+        print("Found horror movies - ", len(movies_collection))
     
     else:
         print("Break condition activated...")
         break
+
 # Export horror movies to csv file
-print(f"Exporting results to csv file {filename}")
-for horror in horrormovies:
+print(f"Exporting results to csv file {output_filename}")
+for horror in movies_collection:
     # Export CSV file
-    keys = horrormovies[0].keys()
-    with open(filename, "w") as file:
+    keys = movies_collection[0].keys()
+    with open(output_filename, "w") as file:
         csvwriter = csv.DictWriter(file, keys)
         csvwriter.writeheader()
-        csvwriter.writerows(horrormovies)
+        csvwriter.writerows(movies_collection)
 
 
