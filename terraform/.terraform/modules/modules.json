@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"s3_buckets","Source":"git::https://github.com/terraform-aws-modules/terraform-aws-s3-bucket.git","Dir":".terraform/modules/s3_buckets"}]}

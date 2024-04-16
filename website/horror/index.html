@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horror Movie Database</title>
+
+    <meta http-equiv="Cache-control" content="public">
+    <meta content="text/html; charset=UTF-8; X-Content-Type-Options=nosniff" http-equiv="Content-Type" />
+    
+    <!-- Google Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.5/datatables.min.css"/>
+    
+    <!-- DataTables JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.5/datatables.min.js"></script>
+
+    <style>
+        /* Google Material Design theme for DataTables */
+        @import url('https://cdn.datatables.net/plug-ins/1.11.5/integration/material.css');
+        /* Override -webkit-overflow-scrolling */
+        .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Adding id attribute to form field -->
+    <input type="text" id="searchInput" placeholder="Search...">
+    <table id="horrorTable" class="display" style="width:100%"></table>
+
+    <script>
+        $(document).ready(function() {
+            $('#horrorTable').DataTable({
+                "ajax": {
+                    "url": "https://s3.amazonaws.com/horror.craighoad.com/horror/horror_movies_2024.json",
+                    "dataSrc": ""
+                },
+                "columns": [
+                    { "data": "Title" },
+                    { "data": "Overview" },
+                    { 
+                        "data": "Poster Path",
+                        "render": function(data, type, row) {
+                            return '<img src="https://image.tmdb.org/t/p/original/' + data + '" alt="' + row.Title + ' Poster" style="max-width: 100px; max-height: 150px;">';
+                        }
+                    },
+                    { "data": "Release Date" },
+                    { "data": "Popularity" },
+                    { "data": "Vote Average" },
+                    { "data": "Original Language" },
+                    { "data": "Vote Count" },
+                    { "data": "Vote Score" },
+                    { "data": "Algorithm Score" }
+                ],
+                "columnDefs": [
+                    { "width": "10%", "targets": [0, 3, 6] } // Set initial width for columns
+                ],
+                "scrollX": true, // Enable horizontal scrolling
+                "order": [[4, "desc"]], // Sort by Popularity column descending by default
+                "paging": true, // Enable pagination
+                "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ], // Items per page menu
+                "searching": true, // Enable search
+                "info": true, // Enable table information display
+                "responsive": true, // Enable responsive design
+                "autoWidth": false, // Disable automatic column width calculation
+                "language": { // Custom language settings
+                    "search": "Filter: ",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
