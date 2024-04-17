@@ -65,6 +65,17 @@
 
   <div class="container">
 
+  <!-- Poster Modal -->
+<div class="modal fade" id="posterModal" tabindex="-1" aria-labelledby="posterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <!-- Image will be displayed here -->
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Add this div above the table to hold the fixed header -->
   <div id="fixedHeaderContainer"></div>
 
@@ -227,6 +238,16 @@ $(document).ready(function() {
         } else {
             $('.back-to-top').fadeOut();
         }
+    });
+
+    // Function to handle click on poster images
+    $(document).on('click', '.poster-image', function() {
+        const imageUrl = $(this).attr('src');
+        const imageHtml = `<img src="${imageUrl}" class="img-fluid">`;
+        
+        // Open the image in a modal
+        $('#posterModal .modal-body').html(imageHtml);
+        $('#posterModal').modal('show');
     });
 });
 
