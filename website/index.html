@@ -28,14 +28,18 @@
     }
 
     .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
-  background-color: #f5f5f5;
-}
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      /* Set the fixed height of the footer here */
+      height: 60px;
+      line-height: 60px; /* Vertically center the text there */
+      background-color: #f5f5f5;
+    }
+
+    .dataTables_scrollHead {
+      z-index: 1001 !important; /* Adjust the z-index value as needed */
+    }
 
   </style>
 </head>
@@ -51,30 +55,32 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <!-- Genres will be loaded here -->
         </ul>
-        <form class="d-flex" role="search">
+        <!-- <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+        </form> -->
       </div>
     </div>
   </nav>
 
   <div class="container">
 
-    <!-- Table for displaying JSON data -->
-    <div class="row mt-4">
-      <div class="col">
-        <h2>Movie Details</h2>
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered" id="movieTable">
-            <thead>
-              <!-- Table headers will be dynamically generated -->
-            </thead>
-            <tbody>
-              <!-- Table body will be dynamically populated -->
-            </tbody>
-          </table>
-        </div>
+  <!-- Add this div above the table to hold the fixed header -->
+  <div id="fixedHeaderContainer"></div>
+
+  <!-- Table for displaying JSON data -->
+  <div class="row mt-4">
+    <div class="col">
+      <h2>Movie Details</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered" id="movieTable">
+          <thead>
+            <!-- Table headers will be dynamically generated -->
+          </thead>
+          <tbody>
+            <!-- Table body will be dynamically populated -->
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -90,17 +96,16 @@
     { name: 'Adventure', dataUrl: 'https://banshee.craighoad.com/adventure' },
     { name: 'Comedy', dataUrl: 'https://banshee.craighoad.com/comedy' },
     { name: 'Crime', dataUrl: 'https://banshee.craighoad.com/crime' },
+    { name: 'Documentary', dataUrl: 'https://banshee.craighoad.com/documentary' },
     { name: 'Drama', dataUrl: 'https://banshee.craighoad.com/drama' },
     { name: 'Fantasy', dataUrl: 'https://banshee.craighoad.com/fantasy' },
     { name: 'Horror', dataUrl: 'https://banshee.craighoad.com/horror' },
     { name: 'Mystery', dataUrl: 'https://banshee.craighoad.com/mystery' },
-    { name: 'Scifi', dataUrl: 'https://banshee.craighoad.com/scifi' },
+    { name: 'Science Fiction', dataUrl: 'https://banshee.craighoad.com/Science Fiction' },
     { name: 'Thriller', dataUrl: 'https://banshee.craighoad.com/thriller' },
     { name: 'War', dataUrl: 'https://banshee.craighoad.com/war' },
     { name: 'Western', dataUrl: 'https://banshee.craighoad.com/western' }
   ];
-
-
 
   const currentYear = new Date().getFullYear();
   const startYear = 1920; // Start year for movies
@@ -124,8 +129,6 @@
     dropdownHtml += `</ul></li>`;
     $('.navbar-nav').append(dropdownHtml);
   });
-
-  let dataTableInstance; // Variable to hold the DataTable instance
 
   // Function to display movie details in a table
   function displayMovieDetails(data) {
@@ -171,45 +174,42 @@
       tableBody.append(row);
     });
 
-      // Check if DataTable instance already exists
-      if ($.fn.DataTable.isDataTable('#movieTable')) {
-        // Destroy existing DataTable instance
-        dataTableInstance.destroy();
-      }
-
     // Initialize DataTables with sorting enabled and default sorting by Algorithm Score descending
-    dataTableInstance = $('#movieTable').DataTable({
+    $('#movieTable').DataTable({
       "order": [[ headers.indexOf("Algorithm Score"), "desc" ]], // Default sorting by Algorithm Score in descending order
-      "fixedHeader": true // Make the header row sticky
+      "fixedHeader": true // Enable fixed header
     });
   }
 
 // Function to fetch JSON data from URL and display movie details
 function fetchAndDisplayData(url) {
-      $.getJSON(url)
+    $.getJSON(url)
         .done(function(data) {
-          if ($.fn.DataTable.isDataTable('#movieTable')) {
-            // If DataTable instance exists, clear table data and repopulate
-            $('#movieTable').DataTable().clear().destroy();
-            displayMovieDetails(data); // Repopulate table with new data
-          } else {
-            // If DataTable instance does not exist, directly display new data
-            displayMovieDetails(data);
-          }
+            // Check if DataTable instance already exists
+            if ($.fn.DataTable.isDataTable('#movieTable')) {
+                // Destroy existing DataTable instance
+                $('#movieTable').DataTable().clear().destroy();
+            }
+            displayMovieDetails(data); // Display movie details in the table
         })
         .fail(function(jqxhr, textStatus, error) {
-          console.log(`Request failed: ${textStatus}, ${error}`);
+            console.log(`Request failed: ${textStatus}, ${error}`);
         });
-    }
+}
 
-  // Initialize cards
-  $(document).ready(function() {
-
+// Initialize cards
+$(document).ready(function() {
     // Event listener for dropdown item click
     $('.dropdown-item').click(function(e) {
-      e.preventDefault();
-      const url = $(this).attr('href');
-      fetchAndDisplayData(url);
+        e.preventDefault();
+        const url = $(this).attr('href');
+        fetchAndDisplayData(url);
+    });
+
+    // Event listener for more button click
+    $(document).on('click', '.more-button', function() {
+        const target = $(this).data('target');
+        $(target).collapse('toggle');
     });
 
     // Collapse overview text by default
@@ -217,24 +217,19 @@ function fetchAndDisplayData(url) {
 
     // Back to top button functionality
     $('#backToTop').click(function() {
-      $('html, body').animate({ scrollTop: 0 }, 'slow');
+        $('html, body').animate({ scrollTop: 0 }, 'slow');
     });
 
     // Show back to top button when scrolling down
     $(window).scroll(function() {
-      if ($(this).scrollTop() > 200) {
-        $('.back-to-top').fadeIn();
-      } else {
-        $('.back-to-top').fadeOut();
-      }
+        if ($(this).scrollTop() > 200) {
+            $('.back-to-top').fadeIn();
+        } else {
+            $('.back-to-top').fadeOut();
+        }
     });
+});
 
-    // Event listener for more button click
-    $(document).on('click', '.more-button', function() {
-      const target = $(this).data('target');
-      $(target).collapse('toggle');
-    });
-  });
 </script>
 
   <footer class="footer py-3 my-4">
@@ -247,6 +242,9 @@ function fetchAndDisplayData(url) {
     </ul>
     <p class="text-center text-muted">&copy; Craig Hoad 2024, Banshee</p>
   </footer>
+
+  <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+
 
 </body>
 </html>
