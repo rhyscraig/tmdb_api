@@ -34,7 +34,6 @@
       /* Set the fixed height of the footer here */
       height: 60px;
       line-height: 60px; /* Vertically center the text there */
-      background-color: #f5f5f5;
     }
 
     .dataTables_scrollHead {
@@ -55,15 +54,24 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <!-- Genres will be loaded here -->
         </ul>
-        <!-- <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form> -->
       </div>
     </div>
   </nav>
 
   <div class="container">
+
+  <!-- Poster Modal -->
+<div class="modal fade" id="posterModal" tabindex="-1" aria-labelledby="posterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <!-- Image will be displayed here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="genreYearHeader" class="mb-4"></div> <!-- New div for the header -->
 
   <!-- Add this div above the table to hold the fixed header -->
   <div id="fixedHeaderContainer"></div>
@@ -71,7 +79,7 @@
   <!-- Table for displaying JSON data -->
   <div class="row mt-4">
     <div class="col">
-      <h2>Movie Details</h2>
+      <!-- <h2>Movie Details</h2> -->
       <div class="table-responsive">
         <table class="table table-striped table-bordered" id="movieTable">
           <thead>
@@ -163,7 +171,8 @@
       const row = $('<tr>');
       headers.forEach(header => {
         if (header === 'Poster Path') {
-          row.append(`<td><img src="https://image.tmdb.org/t/p/original/${movie[header]}" class="img-fluid" style="max-width: 100px;"></td>`);
+          // Add the poster-image class to the image tag
+          row.append(`<td><img src="https://image.tmdb.org/t/p/original/${movie[header]}" class="img-fluid poster-image" style="max-width: 100px;"></td>`);
         } else if (header === 'Overview') {
           const overviewId = `overview-${movie.id}`; // Unique ID for each overview
           row.append(`<td><button class="btn btn-link more-button" type="button" data-bs-toggle="collapse" data-bs-target="#${overviewId}" aria-expanded="false" aria-controls="${overviewId}">More</button><div class="collapse" id="${overviewId}">${movie[header]}</div></td>`);
@@ -203,6 +212,10 @@ $(document).ready(function() {
     $('.dropdown-item').click(function(e) {
         e.preventDefault();
         const url = $(this).attr('href');
+        const genre = $(this).closest('.dropdown-menu').prev('.dropdown-toggle').text().trim(); // Extract genre name from the dropdown
+        const year = $(this).text().trim(); // Extract year from the dropdown item
+        const headerText = `${genre} Movies ${year}`; // Generate the header text
+        $('#genreYearHeader').html(`<h3 class="fw-bold">${headerText}</h3>`); // Update the header
         fetchAndDisplayData(url);
     });
 
@@ -227,6 +240,16 @@ $(document).ready(function() {
         } else {
             $('.back-to-top').fadeOut();
         }
+    });
+
+    // Function to handle click on poster images
+    $(document).on('click', '.poster-image', function() {
+        const imageUrl = $(this).attr('src');
+        const imageHtml = `<img src="${imageUrl}" class="img-fluid">`;
+        
+        // Open the image in a modal
+        $('#posterModal .modal-body').html(imageHtml);
+        $('#posterModal').modal('show');
     });
 });
 

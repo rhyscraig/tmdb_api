@@ -40,6 +40,28 @@
       z-index: 1001 !important; /* Adjust the z-index value as needed */
     }
 
+    /* CSS for advanced search */
+    #advancedSearchModal {
+      display: none;
+      position: fixed;
+      z-index: 1050;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    #advancedSearchModal .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+
   </style>
 </head>
 <body>
@@ -54,9 +76,83 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <!-- Genres will be loaded here -->
         </ul>
+        <button type="button" class="btn btn-primary" id="advancedSearchBtn">Advanced Search</button>
       </div>
     </div>
   </nav>
+
+   <!-- Advanced Search Modal -->
+   <div id="advancedSearchModal">
+    <div class="modal-content">
+      <form id="advancedSearchForm">
+        <div class="mb-3">
+          <label for="fromYear" class="form-label">From Year:</label>
+          <input type="text" class="form-control" id="fromYear" placeholder="Enter From Year">
+        </div>
+        <div class="mb-3">
+          <label for="toYear" class="form-label">To Year:</label>
+          <input type="text" class="form-control" id="toYear" placeholder="Enter To Year">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Genres:</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Action</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="adventureGenre" value="Adventure">
+            <label class="form-check-label" for="adventureGenre">Adventure</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Comedy</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Crime</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Documentary</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Drama</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Fantasy</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Horor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Mystery</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Science Fiction</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Thriller</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">War</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input genre-checkbox" type="checkbox" id="actionGenre" value="Action">
+            <label class="form-check-label" for="actionGenre">Western</label>
+          </div>
+          <!-- Add more genre checkboxes as needed -->
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+  </div>
 
   <div class="container">
 
@@ -208,6 +304,45 @@ function fetchAndDisplayData(url) {
 
 // Initialize cards
 $(document).ready(function() {
+
+// Submit Advanced Search Form
+$('#advancedSearchForm').submit(function(e) {
+  e.preventDefault();
+  const fromYear = parseInt($('#fromYear').val());
+  const toYear = parseInt($('#toYear').val());
+  const genres = [];
+  $('.genre-checkbox:checked').each(function() {
+    genres.push($(this).val());
+  });
+  console.log('From Year:', fromYear);
+  console.log('To Year:', toYear);
+  console.log('Genres:', genres);
+
+  // Construct URLs based on search parameters
+  const urls = [];
+  genres.forEach(genre => {
+    for (let year = fromYear; year <= toYear; year++) {
+      const filename = `${genre.toLowerCase()}_movies_${year}.json`;
+      const url = `https://s3.amazonaws.com/banshee.craighoad.com/${genre.toLowerCase()}/${year}/${filename}`;
+      urls.push(url);
+    }
+  });
+
+  // Fetch data from all URLs
+  Promise.all(urls.map(url => fetch(url)))
+    .then(responses => Promise.all(responses.map(response => response.json())))
+    .then(data => {
+      // Combine data from all responses into a single array
+      const combinedData = data.reduce((acc, curr) => acc.concat(curr), []);
+      console.log('Combined Data:', combinedData);
+      // Display combined data in the DataTable
+      displayMovieDetails(combinedData);
+      // Close the modal
+      $('#advancedSearchModal').css('display', 'none');
+    })
+    .catch(error => console.error('Error fetching data:', error));
+});
+
     // Event listener for dropdown item click
     $('.dropdown-item').click(function(e) {
         e.preventDefault();
@@ -250,6 +385,35 @@ $(document).ready(function() {
         // Open the image in a modal
         $('#posterModal .modal-body').html(imageHtml);
         $('#posterModal').modal('show');
+    });
+
+   // Show Advanced Search Modal
+   $('#advancedSearchBtn').click(function() {
+      $('#advancedSearchModal').css('display', 'block');
+    });
+
+    // Hide Advanced Search Modal when clicking outside the modal
+    $(window).click(function(event) {
+      if (event.target == $('#advancedSearchModal')[0]) {
+        $('#advancedSearchModal').css('display', 'none');
+      }
+    });
+
+    // Submit Advanced Search Form
+    $('#advancedSearchForm').submit(function(e) {
+      e.preventDefault();
+      const fromYear = $('#fromYear').val();
+      const toYear = $('#toYear').val();
+      const genres = [];
+      $('.genre-checkbox:checked').each(function() {
+        genres.push($(this).val());
+      });
+      console.log('From Year:', fromYear);
+      console.log('To Year:', toYear);
+      console.log('Genres:', genres);
+      // You can perform further actions like fetching data based on the advanced search parameters here
+      // For now, let's just close the modal
+      $('#advancedSearchModal').css('display', 'none');
     });
 });
 

@@ -100,19 +100,22 @@
 <script>
   // Sample genres
   const genres = [
-    { name: 'Action', dataUrl: 'https://banshee.craighoad.com/action' },
-    { name: 'Adventure', dataUrl: 'https://banshee.craighoad.com/adventure' },
-    { name: 'Comedy', dataUrl: 'https://banshee.craighoad.com/comedy' },
-    { name: 'Crime', dataUrl: 'https://banshee.craighoad.com/crime' },
-    { name: 'Documentary', dataUrl: 'https://banshee.craighoad.com/documentary' },
-    { name: 'Drama', dataUrl: 'https://banshee.craighoad.com/drama' },
-    { name: 'Fantasy', dataUrl: 'https://banshee.craighoad.com/fantasy' },
-    { name: 'Horror', dataUrl: 'https://banshee.craighoad.com/horror' },
-    { name: 'Mystery', dataUrl: 'https://banshee.craighoad.com/mystery' },
-    { name: 'Science Fiction', dataUrl: 'https://banshee.craighoad.com/Science Fiction' },
-    { name: 'Thriller', dataUrl: 'https://banshee.craighoad.com/thriller' },
-    { name: 'War', dataUrl: 'https://banshee.craighoad.com/war' },
-    { name: 'Western', dataUrl: 'https://banshee.craighoad.com/western' }
+    { name: 'Action & Adventure', dataUrl: 'https://banshee.craighoad.com.tv/action%20&%20adventure' },
+    { name: 'Adventure', dataUrl: 'https://banshee.craighoad.com.tv/animation' },
+    { name: 'Comedy', dataUrl: 'https://banshee.craighoad.com.tv/comedy' },
+    { name: 'Crime', dataUrl: 'https://banshee.craighoad.com.tv/crime' },
+    { name: 'Documentary', dataUrl: 'https://banshee.craighoad.com.tv/documentary' },
+    { name: 'Drama', dataUrl: 'https://banshee.craighoad.com.tv/drama' },
+    { name: 'Family', dataUrl: 'https://banshee.craighoad.com.tv/family' },
+    { name: 'Kids', dataUrl: 'https://banshee.craighoad.com.tv/kids' },
+    { name: 'Mystery', dataUrl: 'https://banshee.craighoad.com.tv/mystery' },
+    { name: 'News', dataUrl: 'https://banshee.craighoad.com.tv/news' },
+    { name: 'Reality', dataUrl: 'https://banshee.craighoad.com.tv/reality' },
+    { name: 'Sci-Fi & Fantasy', dataUrl: 'https://banshee.craighoad.com.tv/sci-fi%20&%20fantasy' },
+    { name: 'Soap', dataUrl: 'https://banshee.craighoad.com.tv/soap' },
+    { name: 'Talk', dataUrl: 'https://banshee.craighoad.com.tv/talk' },
+    { name: 'War & Politics', dataUrl: 'https://banshee.craighoad.com.tv/war%20&%20politics' },
+    { name: 'Western', dataUrl: 'https://banshee.craighoad.com.tv/western' }
   ];
 
   const currentYear = new Date().getFullYear();
@@ -129,8 +132,9 @@
     
     for (let year = currentYear; year >= currentYear - 120; year--) {
       const filename = `${genre.name.toLowerCase()}_movies_${year}.json`;
+      const encodedUrl = encodeURIComponent(`${genre.dataUrl}/${year}/${filename}`);
       dropdownHtml += `
-        <a class="dropdown-item" href="https://banshee.craighoad.com/${genre.name.toLowerCase()}/${year}/${filename}">${year}</a>
+        <a class="dropdown-item" href="${encodedUrl}">${year}</a>
       `;
     }
 
